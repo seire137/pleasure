@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Mac Home</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-brands/css/uicons-brands.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-bold-straight/css/uicons-bold-straight.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-solid-straight/css/uicons-solid-straight.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+</head>
+<body class="light-mode">
+
+    <header id="top-bar">
+        <div class="left">
+            <span class="apple-logo" onclick="location.reload()"><i class="fi fi-brands-apple"></i></span>
+            <span class="mobile-hide">Finder</span>
+            <span class="mobile-hide">File</span>
+            <span class="mobile-hide">Edit</span>
+        </div>
+        <div class="right">
+            <button id="theme-toggle" onclick="toggleTheme()"><i class="fi fi-bs-sun"></i></button>
+            <button id="search-btn" onclick="openSearch()"><i class="fi fi-bs-search"></i></button>
+            <span class="date-time" id="clock">00:00</span>
+        </div>
+    </header>
+
+    <main id="desktop-area">
+        <div id="window-layer"></div>
+
+        <div id="calendar-widget" class="widget-box hidden">
+            <div class="widget-header">
+                <span class="widget-title">Calendar</span>
+            </div>
+            <div class="widget-content">
+                <iframe src="https://calendar.google.com/calendar/embed?src=yilen0825%40gmail.com&ctz=Asia%2FSeoul&mode=AGENDA&showTitle=0&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTogs=0" style="border: 0" width="100%" height="300" frameborder="0" scrolling="no"></iframe>
+            </div>
+        </div>
+    </main>
+
+    <footer id="dock-container">
+        <div class="dock">
+            <div class="dock-icon" onclick="openMemo()"><img src="./images/icon_notes.JPG" alt="메모"><div class="dot"></div></div>
+            <div class="dock-icon" onclick="window.open('https://youtu.be/RPPT6megnYY')"><img src="./images/icon_music.JPG" alt="음악"></div>
+            <div class="dock-icon" onclick="openSafari()"><img src="./images/icon_safari.JPG" alt="사파리"><div class="dot"></div></div>
+            <div class="dock-icon" onclick="toggleCalendar()"><img src="./images/icon_calender.JPG" alt="캘린더"></div>
+            <div class="dock-icon" onclick="openSettings()"><img src="./images/icon_setting.JPG" alt="설정"></div>
+            <div class="dock-icon" onclick="openGallery()"><img src="./images/icon_photos.JPG" alt="갤러리"><div class="dot"></div></div>
+            
+            <div class="dock-divider"></div>
+            
+            <div class="dock-icon" onclick="openGuestbook()"><img src="./images/icon_message.JPG" alt="메세지"><div class="dot"></div></div>
+            <div class="dock-icon" onclick="window.open('https://www.twitter.com/hare4137')"><img src="./images/icon_bluesky.JPG" alt="블루스카이"></div>
+            <div class="dock-icon" onclick="openFinder('root')"><img src="./images/icon_files.JPG" alt="폴더"><div class="dot"></div></div>
+            <div class="dock-icon"><img src="./images/icon_reminder.JPG" alt="리마인더"></div>
+        </div>
+    </footer>
+
+    <div id="mobile-home" class="hidden">
+        <div class="mobile-grid" id="mobile-app-grid">
+            </div>
+        <div class="mobile-dock">
+            <div onclick="window.open('https://youtu.be/RPPT6megnYY')"><img src="./images/icon_music.JPG"></div>
+            <div onclick="openGallery()"><img src="./images/icon_photos.JPG"></div>
+            <div onclick="openFinder('root')"><img src="./images/icon_files.JPG"></div>
+            <div onclick="openGuestbook()"><img src="./images/icon_message.JPG"></div>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
