@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from datetime import datetime
 
 # 설정: 포스트가 있는 폴더 이름
@@ -7,24 +8,38 @@ POSTS_DIR = 'posts'
 OUTPUT_FILE = os.path.join(POSTS_DIR, 'list.json')
 
 def get_post_info(filename):
-    """
-    HTML 파일 내에서 제목과 날짜를 추출하거나, 
-    파일 정보를 기반으로 메타데이터를 생성합니다.
-    """
     filepath = os.path.join(POSTS_DIR, filename)
     
-    # 기본 정보 (수정 가능)
-    title = filename.replace('.html', '').replace('_', ' ') # 파일명 = 제목
-    category = "기타" # 기본 카테고리
-    date_str = datetime.today().strftime('%Y-%m-%d')
-
-    # HTML 파일을 읽어서 특정 주석이나 태그에서 정보를 가져올 수도 있습니다.
-    # 여기서는 간단하게 파일 생성 시간을 날짜로 씁니다.
+    # 기본값 설정
+    title = filename.replace('.html', '').replace('_', ' ')
+    category = "기타"  # 메타 태그가 없으면 '기타'로 분류
+    date_str = datetime.today().strftime('%Y-%m-%d') # 메타 태그가 없으면 오늘 날짜
+    
     try:
-        creation_time = os.path.getctime(filepath)
-        date_str = datetime.fromtimestamp(creation_time).strftime('%Y-%m-%d')
-    except:
-        pass
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+            
+            # 1. 카테고리 추출 (<meta name="category" content="값">)
+            cat_match = re.search(r'<meta\s+name=["\']category["\']\s+content=["\'](.*?)["\']', content, re.IGNORECASE)
+            if cat_match:
+                category = cat_match.group(1)
+
+            # 2. 날짜 추출 (<meta name="date" content="값">)
+            date_match = re.search(r'<meta\s+name=["\']date["\']\s+content=["\'](.*?)["\']', content, re.IGNORECASE)
+            if date_match:
+                date_str = date_match.group(1)
+            else:
+                # 메타 태그에 날짜가 없으면 파일 생성 시간 사용
+                creation_time = os.path.getctime(filepath)
+                date_str = datetime.fromtimestamp(creation_time).strftime('%Y-%m-%d')
+
+            # 3. 제목 추출 (<h1>태그가 있으면 제목으로 사용, 없으면 파일명)
+            title_match = re.search(r'<h1>(.*?)</h1>', content, re.IGNORECASE)
+            if title_match:
+                title = title_match.group(1)
+
+    except Exception as e:
+        print(f"Error reading {filename}: {e}")
 
     return {
         "title": title,
@@ -37,27 +52,30 @@ def get_post_info(filename):
 def main():
     post_list = []
     
-    # posts 폴더의 모든 파일을 검사
     if not os.path.exists(POSTS_DIR):
         print(f"'{POSTS_DIR}' 폴더가 없습니다.")
         return
 
     files = os.listdir(POSTS_DIR)
     
-    # 최신 글이 위로 오도록 정렬 (파일명 역순)
-    files.sort(reverse=True)
+    # 파일명으로 정렬하지 않고, 나중에 날짜순으로 정렬할 것임
+    temp_list = []
 
     for f in files:
-        # list.json 파일 자기 자신은 제외하고 html 파일만 처리
         if f.endswith('.html'):
             post_info = get_post_info(f)
-            post_list.append(post_info)
+            temp_list.append(post_info)
 
-    # JSON 파일로 저장
+    # 날짜 최신순 정렬 (내림차순)
+    temp_list.sort(key=lambda x: x['date'], reverse=True)
+    post_list = temp_list
+
+    # JSON 저장
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as outfile:
         json.dump(post_list, outfile, ensure_ascii=False, indent=2)
     
-    print(f"총 {len(post_list)}개의 포스트가 {OUTPUT_FILE}에 등록되었습니다.")
+    print(f"✅ 업데이트 완료! 총 {len(post_list)}개의 포스트가 등록되었습니다.")
+    print(f"📂 저장 위치: {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
