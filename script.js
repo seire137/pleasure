@@ -113,6 +113,8 @@ function openFinder(mode, value) {
     `;
 
     let mainContent = `<div class="finder-main">`;
+    // [수정] 빈 폴더 스타일 적용
+    let isEmpty = false;
 
     if (mode === 'root' || !mode) {
         FIXED_CATEGORIES.forEach(cat => {
@@ -128,8 +130,15 @@ function openFinder(mode, value) {
         else if (mode === 'tag') posts = allData.filter(d => d.tags && d.tags.includes(value) && d.type === 'post');
         else if (mode === 'all') posts = allData.filter(d => d.type === 'post');
 
-        if (posts.length === 0) mainContent += `<div style="padding:20px; color:#666;">게시글이 없습니다.</div>`;
-        else {
+        if (posts.length === 0) {
+            // [수정] 게시글 없을 때 화면
+            isEmpty = true;
+            mainContent = `
+            <div class="empty-state">
+                <div class="empty-icon">📂</div>
+                <div class="empty-text">폴더가 비어 있음</div>
+            </div>`;
+        } else {
             posts.forEach(post => {
                 const idx = allData.indexOf(post);
                 mainContent += `
@@ -140,7 +149,12 @@ function openFinder(mode, value) {
             });
         }
     }
-    mainContent += `</div>`;
+    
+    // isEmpty가 아닐 때만 닫는 div 태그 추가 (empty-state는 flex 컨테이너라 구조가 다름)
+    if (!isEmpty) {
+        mainContent += `</div>`;
+    }
+
     createWindow('finder-win', value ? value : 'Home', `<div class="finder-layout">${sidebar}${mainContent}</div>`, 'finder');
 }
 
