@@ -1,7 +1,5 @@
 /* script.js */
 const DATA_URL = "./posts/list.json"; 
-
-// [수정됨] 고정 카테고리 목록
 const FIXED_CATEGORIES = ['1차', '2차', '기타'];
 
 let allData = [];
@@ -12,14 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchData();
     updateClock();
     setInterval(updateClock, 1000);
+    
+    // 검색창 엔터키 이벤트 리스너 (동적 생성 요소라 위임 사용 안함, openSearch에서 처리)
 });
 
 async function fetchData() {
     try {
         const res = await fetch(DATA_URL);
-        if (!res.ok) throw new Error("list.json 로드 실패");
+        if (!res.ok) throw new Error("Load Failed");
         allData = await res.json();
-        console.log("Data Loaded:", allData);
         renderMobileIcons(); 
     } catch (e) {
         console.error(e);
@@ -91,7 +90,6 @@ function createWindow(id, title, contentHTML, type = 'normal', width = 800, heig
 
 function closeWindow(id) { document.getElementById(id)?.remove(); }
 function bringToFront(elm) { elm.style.zIndex = ++zIndex; }
-
 function maximizeWindow(id) {
     const win = document.getElementById(id);
     if (win.style.width === '100%') {
@@ -101,52 +99,23 @@ function maximizeWindow(id) {
     }
 }
 
-function dragElement(elmnt) {
-    let pos1=0, pos2=0, pos3=0, pos4=0;
-    const header = document.getElementById(elmnt.id + "-header");
-    if(header) header.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-        e.preventDefault();
-        pos3 = e.clientX; pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-        bringToFront(elmnt);
-    }
-    function elementDrag(e) {
-        e.preventDefault();
-        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-    }
-    function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
-}
-
 /* === Finder (카테고리 & 태그) === */
 function openFinder(mode, value) {
-    // 모든 태그 수집
     let allTags = new Set();
     allData.forEach(d => { if(d.tags) d.tags.forEach(t => allTags.add(t)); });
 
-    // 사이드바 HTML
     let sidebar = `
         <div class="finder-sidebar">
             <div class="sidebar-group">Favorites</div>
             <div class="sidebar-item" onclick="openFinder('root')">🏠 Home</div>
             <div class="sidebar-item" onclick="openFinder('all')">📚 All Posts</div>
-            
-            <div class="sidebar-group" style="margin-top:20px;">Tags</div>
-            ${[...allTags].map(tag => 
-                `<div class="sidebar-item" onclick="openFinder('tag', '${tag}')"># ${tag}</div>`
-            ).join('')}
+            <div class="sidebar-group">Tags</div>
+            ${[...allTags].map(tag => `<div class="sidebar-item" onclick="openFinder('tag', '${tag}')"># ${tag}</div>`).join('')}
         </div>
     `;
 
-    // 메인 컨텐츠 HTML
     let mainContent = `<div class="finder-main">`;
 
-    // 1. 홈 화면 (고정 카테고리 표시)
     if (mode === 'root' || !mode) {
         FIXED_CATEGORIES.forEach(cat => {
             mainContent += `
@@ -155,21 +124,14 @@ function openFinder(mode, value) {
                 <div class="finder-name">${cat}</div>
             </div>`;
         });
-    } 
-    // 2. 카테고리 내부, 태그 검색, 전체 보기
-    else {
+    } else {
         let posts = [];
-        if (mode === 'category') {
-            posts = allData.filter(d => d.category === value && d.type === 'post');
-        } else if (mode === 'tag') {
-            posts = allData.filter(d => d.tags && d.tags.includes(value) && d.type === 'post');
-        } else if (mode === 'all') {
-            posts = allData.filter(d => d.type === 'post');
-        }
+        if (mode === 'category') posts = allData.filter(d => d.category === value && d.type === 'post');
+        else if (mode === 'tag') posts = allData.filter(d => d.tags && d.tags.includes(value) && d.type === 'post');
+        else if (mode === 'all') posts = allData.filter(d => d.type === 'post');
 
-        if (posts.length === 0) {
-            mainContent += `<div style="padding:20px; color:#666;">게시글이 없습니다.</div>`;
-        } else {
+        if (posts.length === 0) mainContent += `<div style="padding:20px; color:#666;">게시글이 없습니다.</div>`;
+        else {
             posts.forEach(post => {
                 const idx = allData.indexOf(post);
                 mainContent += `
@@ -181,9 +143,80 @@ function openFinder(mode, value) {
         }
     }
     mainContent += `</div>`;
+    createWindow('finder-win', value ? value : 'Home', `<div class="finder-layout">${sidebar}${mainContent}</div>`, 'finder');
+}
 
-    const title = value ? value : 'Home';
-    createWindow('finder-win', title, `<div class="finder-layout">${sidebar}${mainContent}</div>`, 'finder');
+/* === [추가] 검색 기능 (리스트 뷰) === */
+function openSearch() {
+    let sidebar = `
+        <div class="finder-sidebar">
+            <div class="sidebar-group">Search</div>
+            <div class="sidebar-item" style="background:var(--list-hover)">🔍 Results</div>
+        </div>
+    `;
+
+    let content = `
+        <div class="finder-layout">
+            ${sidebar}
+            <div style="flex:1; display:flex; flex-direction:column;">
+                <div class="search-bar-container">
+                    <span>🔍</span>
+                    <input type="text" id="search-input" class="search-input" placeholder="검색어 입력 (제목, 내용, 태그)..." onkeyup="performSearch(this.value)">
+                </div>
+                <div class="list-header">
+                    <div class="col-name">이름</div>
+                    <div class="col-date">날짜</div>
+                </div>
+                <div id="search-results" style="flex:1; overflow-y:auto;">
+                    <div style="padding:20px; color:#888; text-align:center;">검색어를 입력하세요.</div>
+                </div>
+            </div>
+        </div>
+    `;
+    createWindow('search-win', 'Search', content, 'search');
+    setTimeout(() => document.getElementById('search-input').focus(), 100);
+}
+
+function performSearch(query) {
+    const container = document.getElementById('search-results');
+    if (!query) {
+        container.innerHTML = `<div style="padding:20px; color:#888; text-align:center;">검색어를 입력하세요.</div>`;
+        return;
+    }
+
+    const lowerQ = query.toLowerCase();
+    const results = allData.filter(d => {
+        if (d.type !== 'post') return false;
+        // 제목, 태그, 본문 내용 검색
+        return d.title.toLowerCase().includes(lowerQ) ||
+               (d.tags && d.tags.some(t => t.toLowerCase().includes(lowerQ))) ||
+               (d.content_text && d.content_text.toLowerCase().includes(lowerQ));
+    });
+
+    if (results.length === 0) {
+        container.innerHTML = `<div style="padding:20px; color:#888; text-align:center;">결과가 없습니다.</div>`;
+        return;
+    }
+
+    let html = `<div class="finder-list-view">`;
+    results.forEach(post => {
+        const idx = allData.indexOf(post);
+        // 본문 미리보기 (검색어가 포함된 부분)
+        let snippet = post.content_text || "";
+        if(snippet.length > 50) snippet = snippet.substring(0, 50) + "...";
+
+        html += `
+        <div class="list-row" onclick="openPostDetail(${idx})">
+            <div class="list-icon">📝</div>
+            <div class="list-info col-name">
+                <div class="list-title">${post.title}</div>
+                <div class="list-sub">${snippet}</div>
+            </div>
+            <div class="list-date col-date">${post.date}</div>
+        </div>`;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
 }
 
 /* === 게시글 상세 === */
@@ -191,9 +224,8 @@ async function openPostDetail(idx) {
     const post = allData[idx];
     if(!post) return;
 
-    // 태그 HTML 생성
     const tagsHTML = post.tags && post.tags.length > 0 
-        ? `<div class="post-tags">` + post.tags.map(t => `<span class="tag-badge">#${t}</span>`).join('') + `</div>`
+        ? `<div style="margin-bottom:15px;">` + post.tags.map(t => `<span class="tag-badge">#${t}</span>`).join('') + `</div>`
         : '';
 
     createWindow('post-' + idx, post.title, `
@@ -202,9 +234,9 @@ async function openPostDetail(idx) {
         </div>
         <div class="post-content scroll-content">
             <h1>${post.title}</h1>
-            <p class="post-meta">${post.date} | ${post.category}</p>
+            <p style="color:#888; font-size:13px; margin-bottom:10px;">${post.date} | ${post.category}</p>
             ${tagsHTML}
-            <hr class="post-divider">
+            <hr style="opacity:0.2; margin:20px 0;">
             <div id="post-body-${idx}">Loading...</div>
         </div>
     `, 'post');
@@ -219,25 +251,33 @@ async function openPostDetail(idx) {
     }
 }
 
-// 기타 기능들은 그대로 유지
-function openGallery() { createWindow('gallery-win', 'Photos', '<div class="finder-main">갤러리 준비중</div>', 'normal'); }
+// 기타 기능
+function openGallery() { createWindow('gallery-win', 'Photos', '<div class="finder-main" style="padding:20px;">갤러리 준비중</div>', 'normal'); }
 function openMemo() { createWindow('memo-win', 'Notes', '<div style="padding:20px;" contenteditable="true">메모...</div>', 'normal', 300, 400); }
-function openGuestbook() { createWindow('guestbook-win', 'Messages', '<div class="chat-container">준비중...</div>', 'normal', 350, 600); }
+function openGuestbook() { createWindow('guestbook-win', 'Messages', '<div class="finder-main" style="padding:20px;">방명록 준비중</div>', 'normal', 350, 600); }
 function openSettings() { alert("관리자 권한이 필요합니다."); }
 function openSafari() { createWindow('safari-win', 'Safari', '<div style="padding:50px; text-align:center;">Safari Home</div>', 'normal'); }
 function toggleCalendar() { document.getElementById('calendar-widget').classList.toggle('hidden'); }
 
+// 상단바 검색 버튼 연결
+document.getElementById('search-btn').onclick = openSearch;
+
+// 드래그 기능 등 유틸리티
+function dragElement(elmnt) {
+    let pos1=0, pos2=0, pos3=0, pos4=0;
+    const header = document.getElementById(elmnt.id + "-header");
+    if(header) header.onmousedown = dragMouseDown;
+    function dragMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; bringToFront(elmnt); }
+    function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
+    function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
+}
+
 function renderMobileIcons() {
     if (!isMobile) return;
     const grid = document.getElementById('mobile-app-grid');
-    // 모바일에서도 고정 카테고리 표시
     let html = '';
     FIXED_CATEGORIES.forEach(cat => {
-        html += `
-        <div class="app-icon" onclick="openFinder('category', '${cat}')">
-            <div class="icon-box">📁</div>
-            <span>${cat}</span>
-        </div>`;
+        html += `<div class="app-icon" onclick="openFinder('category', '${cat}')"><div class="icon-box">📁</div><span>${cat}</span></div>`;
     });
     grid.innerHTML = html;
 }
