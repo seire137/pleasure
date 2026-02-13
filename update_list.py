@@ -19,7 +19,7 @@ def get_post_info(filename):
     category = "기타"
     date_str = datetime.today().strftime('%Y-%m-%d')
     tags = []
-    content_text = "" # 검색용 본문 요약
+    content_text = "" 
 
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -41,10 +41,9 @@ def get_post_info(filename):
             title_match = re.search(r'<h1>(.*?)</h1>', content, re.IGNORECASE)
             if title_match: title = title_match.group(1)
             
-            # 검색을 위해 본문 텍스트 추출 (HTML 태그 제거)
+            # 검색용 본문 추출
             content_text = remove_html_tags(content)
-            # 너무 길면 용량 문제로 앞부분 1000자만 저장 (조절 가능)
-            content_text = content_text[:1000]
+            content_text = content_text[:1000] # 길이 제한
 
     except Exception as e:
         print(f"Error reading {filename}: {e}")
@@ -54,7 +53,7 @@ def get_post_info(filename):
         "date": date_str,
         "category": category,
         "tags": tags,
-        "content_text": content_text, # 검색 대상
+        "content_text": content_text,
         "filename": filename,
         "type": "post"
     }
@@ -76,7 +75,7 @@ def main():
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as outfile:
         json.dump(post_list, outfile, ensure_ascii=False, indent=2)
     
-    print(f"✅ 업데이트 완료! {len(post_list)}개의 포스트 (검색 데이터 포함)")
+    print(f"{len(post_list)}개의 포스트 (검색 데이터 포함)")
 
 if __name__ == "__main__":
     main()
