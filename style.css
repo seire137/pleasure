@@ -1,103 +1,115 @@
-/* 기존 :root 변수 유지 */
 :root {
     --bg-image: url('./images/background1.JPG');
     --dock-bg: rgba(255, 255, 255, 0.4);
     --window-bg: rgba(255, 255, 255, 0.95);
     --text-color: #000;
     --sidebar-bg: rgba(245, 245, 247, 0.9);
+    --list-hover: rgba(0, 0, 0, 0.05);
+    --line-color: rgba(0, 0, 0, 0.1);
 }
+
 body.dark-mode {
     --bg-image: url('./images/background2.JPG');
     --dock-bg: rgba(0, 0, 0, 0.4);
     --window-bg: rgba(30, 30, 30, 0.95);
     --text-color: #fff;
     --sidebar-bg: rgba(40, 40, 40, 0.9);
+    --list-hover: rgba(255, 255, 255, 0.1);
+    --line-color: rgba(255, 255, 255, 0.1);
 }
 
-/* [중요] 타원 방지 코드: 모든 원형 요소에 최소 크기 지정 및 축소 방지 */
-.dock-icon .dot { 
-    width: 5px; height: 5px; 
-    min-width: 5px; min-height: 5px; /* 찌그러짐 방지 */
-    background: black; border-radius: 50%; margin-top: 5px; 
-    opacity: 0; transition: opacity 0.3s;
-    flex-shrink: 0; /* 플렉스 박스에서 줄어들지 않음 */
-}
-.dark-mode .dock-icon .dot { background: white; }
-
-.ctrl-btn { 
-    width: 12px; height: 12px; 
-    min-width: 12px; min-height: 12px; /* 찌그러짐 방지 */
-    border-radius: 50%; border: none; 
-    flex-shrink: 0; 
-}
-
-/* Finder 사이드바 업데이트 */
-.finder-layout { display: flex; width: 100%; height: 100%; }
-.finder-sidebar { 
-    width: 180px; 
-    background: var(--sidebar-bg); 
-    padding: 15px; 
-    border-right: 1px solid rgba(0,0,0,0.1); 
-    display: flex; flex-direction: column; gap: 5px;
-    overflow-y: auto;
-}
-.sidebar-group { 
-    font-size: 11px; font-weight: bold; color: #888; 
-    margin-bottom: 5px; text-transform: uppercase; 
-}
-.sidebar-item { 
-    padding: 6px 10px; border-radius: 6px; 
-    cursor: pointer; font-size: 13px; color: var(--text-color);
-}
-.sidebar-item:hover { background: rgba(0,0,0,0.05); }
-
-/* Finder 메인 */
-.finder-main { 
-    flex: 1; padding: 20px; overflow-y: auto; 
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
-    grid-auto-rows: 110px; gap: 10px; align-content: start; 
-}
-
-/* 게시글 태그 스타일 */
-.post-meta { color: #888; font-size: 13px; margin-bottom: 10px; }
-.post-tags { margin-bottom: 20px; display: flex; gap: 5px; flex-wrap: wrap; }
-.tag-badge { 
-    background: rgba(0,122,255,0.1); color: #007aff; 
-    padding: 4px 8px; border-radius: 12px; font-size: 12px; 
-}
-.post-divider { opacity: 0.2; margin: 20px 0; }
-
-/* 기존 스타일 유지 (상단바, 독 등) */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; background-image: var(--bg-image); background-size: cover; background-position: center; transition: background-image 0.5s; user-select: none; }
+body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; height: 100vh; background-image: var(--bg-image); background-size: cover; background-position: center; transition: background-image 0.5s; user-select: none; }
+
+/* Top Bar */
 #top-bar { height: 30px; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: white; position: fixed; top: 0; width: 100%; z-index: 9999; font-size: 13px; }
-#top-bar button { background: none; border: none; color: white; cursor: pointer; }
+#top-bar button { background: none; border: none; color: white; cursor: pointer; padding: 0 5px; }
+
+/* Desktop */
 #desktop-area { position: relative; width: 100%; height: 100%; pt: 30px; }
+
+/* Dock: 아이콘 찌그러짐 원천 차단 */
 #dock-container { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: center; z-index: 9000; pointer-events: none; }
-.dock { pointer-events: auto; background: var(--dock-bg); backdrop-filter: blur(20px); padding: 10px; border-radius: 24px; display: flex; gap: 10px; border: 1px solid rgba(255,255,255,0.2); align-items: flex-end; }
-.dock-icon { width: 50px; height: 50px; cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; }
-.dock-icon:hover { transform: scale(1.1) translateY(-5px); }
-.dock-icon img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.dock { pointer-events: auto; background: var(--dock-bg); backdrop-filter: blur(20px); padding: 12px; border-radius: 24px; display: flex; gap: 12px; border: 1px solid rgba(255,255,255,0.2); align-items: flex-end; height: 80px; } /* 높이 고정 */
+.dock-icon { 
+    width: 50px; height: 50px; 
+    min-width: 50px; min-height: 50px; /* 최소 크기 고정 */
+    aspect-ratio: 1 / 1; /* 비율 강제 고정 */
+    cursor: pointer; transition: transform 0.2s; 
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    flex-shrink: 0; /* 줄어들지 않음 */
+}
+.dock-icon:hover { transform: scale(1.1) translateY(-10px); }
+.dock-icon img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
+.dock-icon .dot { width: 4px; height: 4px; background: black; border-radius: 50%; margin-top: 4px; opacity: 0; transition: opacity 0.3s; flex-shrink: 0; }
+.dark-mode .dock-icon .dot { background: white; }
 .dock-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.3); margin: 0 5px; align-self: center; }
 
-.mac-window { position: absolute; background: var(--window-bg); border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); display: flex; flex-direction: column; overflow: hidden; color: var(--text-color); border: 1px solid rgba(128,128,128,0.2); min-width: 300px; min-height: 200px; backdrop-filter: blur(15px); }
-.window-header { height: 36px; background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.05)); display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+/* Window System */
+.mac-window { position: absolute; background: var(--window-bg); border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; color: var(--text-color); border: 1px solid rgba(128,128,128,0.2); min-width: 300px; min-height: 200px; backdrop-filter: blur(20px); }
+.window-header { height: 40px; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid var(--line-color); flex-shrink: 0; }
 .controls { display: flex; gap: 8px; }
+/* 창 조절 버튼 원형 유지 */
+.ctrl-btn { 
+    width: 12px; height: 12px; 
+    min-width: 12px; min-height: 12px; 
+    border-radius: 50%; border: none; flex-shrink: 0; 
+}
 .close-btn { background: #ff5f56; } .min-btn { background: #ffbd2e; } .max-btn { background: #27c93f; }
-.window-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; }
-.window-body { flex: 1; overflow: hidden; display: flex; position: relative; }
+.window-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-color); }
+.window-body { flex: 1; overflow: hidden; display: flex; position: relative; flex-direction: column; }
 
-/* Finder Icons */
-.finder-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 5px; border-radius: 5px; }
-.finder-item:hover { background: rgba(0,0,0,0.1); }
-.finder-icon { font-size: 40px; margin-bottom: 5px; color: #5fc9f8; }
+/* 달력 위젯 (정사각형 형태) */
+.widget-box { 
+    position: absolute; top: 60px; right: 30px; 
+    width: 320px; height: 340px; /* 정사각형 비율에 가깝게 조정 */
+    background: var(--window-bg); border-radius: 20px; 
+    padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+    backdrop-filter: blur(20px); z-index: 100; 
+    display: flex; flex-direction: column;
+}
+.widget-box.hidden { display: none; }
+.widget-header { font-weight: bold; margin-bottom: 15px; font-size: 14px; color: #ff5f56; text-transform: uppercase; letter-spacing: 1px; }
+.widget-content { flex: 1; overflow: hidden; border-radius: 12px; }
+
+/* Finder Layout */
+.finder-layout { display: flex; width: 100%; height: 100%; }
+.finder-sidebar { width: 180px; background: var(--sidebar-bg); padding: 15px; border-right: 1px solid var(--line-color); display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex-shrink: 0; }
+.sidebar-group { font-size: 11px; font-weight: bold; color: #888; margin: 15px 0 5px 5px; text-transform: uppercase; }
+.sidebar-item { padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
+.sidebar-item:hover { background: var(--list-hover); }
+
+/* Finder Grid View (Icons) */
+.finder-main { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); grid-auto-rows: 110px; gap: 10px; align-content: start; }
+.finder-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 10px; border-radius: 8px; }
+.finder-item:hover { background: var(--list-hover); }
+.finder-icon { font-size: 42px; margin-bottom: 8px; }
 .finder-name { font-size: 12px; text-align: center; word-break: break-all; max-width: 100%; line-height: 1.3; }
 
+/* [추가] Finder List View (검색 결과용) */
+.finder-list-view { display: flex; flex-direction: column; width: 100%; }
+.list-header { display: flex; padding: 0 20px 10px 20px; border-bottom: 1px solid var(--line-color); color: #888; font-size: 12px; }
+.col-name { flex: 2; } .col-date { flex: 1; text-align: right; }
+.list-row { display: flex; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--line-color); cursor: pointer; transition: background 0.1s; }
+.list-row:hover { background: #007aff; color: white !important; }
+.list-row:hover .list-sub { color: rgba(255,255,255,0.8); }
+.list-icon { font-size: 20px; margin-right: 10px; }
+.list-info { flex: 2; display: flex; flex-direction: column; gap: 2px; }
+.list-title { font-size: 14px; font-weight: 500; }
+.list-sub { font-size: 12px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+.list-date { flex: 1; text-align: right; font-size: 12px; color: #888; }
+.list-row:hover .list-date { color: rgba(255,255,255,0.8); }
+
+/* Search Bar in Window */
+.search-bar-container { padding: 10px 20px; border-bottom: 1px solid var(--line-color); display: flex; align-items: center; gap: 10px; }
+.search-input { width: 100%; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line-color); background: rgba(128,128,128,0.1); color: var(--text-color); font-size: 13px; }
+
 /* Post View */
-.safari-toolbar { padding: 10px; background: var(--sidebar-bg); display: flex; gap: 10px; border-bottom: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
-.url-bar { flex: 1; background: rgba(128,128,128,0.15); border-radius: 8px; padding: 5px 10px; font-size: 12px; text-align: center; display: flex; align-items: center; justify-content: center; }
+.safari-toolbar { padding: 10px; border-bottom: 1px solid var(--line-color); display: flex; gap: 10px; flex-shrink: 0; }
+.url-bar { flex: 1; background: rgba(128,128,128,0.15); border-radius: 8px; padding: 5px; text-align: center; font-size: 12px; display: flex; align-items: center; justify-content: center; }
 .post-content { padding: 30px; line-height: 1.6; font-size: 16px; overflow-y: auto; flex: 1; }
 .post-content img { max-width: 100%; border-radius: 8px; }
+.tag-badge { background: rgba(0,122,255,0.1); color: #007aff; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 5px; }
 
 /* Mobile */
 #mobile-home { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; flex-direction: column; padding-top: 50px; }
@@ -106,7 +118,6 @@ body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; overflow: 
 .app-icon .icon-box { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
 .mobile-dock { height: 90px; background: rgba(255,255,255,0.2); backdrop-filter: blur(20px); margin: 15px; border-radius: 30px; display: flex; justify-content: space-around; align-items: center; }
 .mobile-dock img { width: 50px; height: 50px; border-radius: 12px; }
-
 .hidden { display: none !important; }
 
 @media (max-width: 768px) {
