@@ -28,41 +28,52 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sa
 /* Desktop */
 #desktop-area { position: relative; width: 100%; height: 100%; pt: 30px; }
 
-/* Dock: 아이콘 찌그러짐 원천 차단 */
+/* [수정] Dock: 아이콘 높이 일정하게 정렬 */
 #dock-container { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: center; z-index: 9000; pointer-events: none; }
-.dock { pointer-events: auto; background: var(--dock-bg); backdrop-filter: blur(20px); padding: 12px; border-radius: 24px; display: flex; gap: 12px; border: 1px solid rgba(255,255,255,0.2); align-items: flex-end; height: 80px; } /* 높이 고정 */
+.dock { 
+    pointer-events: auto; 
+    background: var(--dock-bg); 
+    backdrop-filter: blur(20px); 
+    padding: 12px; 
+    border-radius: 24px; 
+    display: flex; 
+    gap: 12px; 
+    border: 1px solid rgba(255,255,255,0.2); 
+    align-items: center; /* 중앙 정렬로 변경 */
+    height: auto; 
+} 
 .dock-icon { 
     width: 50px; height: 50px; 
-    min-width: 50px; min-height: 50px; /* 최소 크기 고정 */
-    aspect-ratio: 1 / 1; /* 비율 강제 고정 */
+    min-width: 50px; min-height: 50px; 
+    aspect-ratio: 1 / 1; 
     cursor: pointer; transition: transform 0.2s; 
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    flex-shrink: 0; /* 줄어들지 않음 */
+    display: flex; justify-content: center; align-items: center;
+    position: relative; /* 점 위치 기준 */
+    flex-shrink: 0; 
 }
 .dock-icon:hover { transform: scale(1.1) translateY(-10px); }
-.dock-icon img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
-.dock-icon .dot { width: 4px; height: 4px; background: black; border-radius: 50%; margin-top: 4px; opacity: 0; transition: opacity 0.3s; flex-shrink: 0; }
+.dock-icon img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; display: block; }
+.dock-icon .dot { 
+    position: absolute; bottom: -8px; /* 아이콘 밖으로 뺌 */
+    width: 4px; height: 4px; background: black; border-radius: 50%; 
+    opacity: 0; transition: opacity 0.3s; flex-shrink: 0; 
+}
 .dark-mode .dock-icon .dot { background: white; }
-.dock-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.3); margin: 0 5px; align-self: center; }
+.dock-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.3); margin: 0 5px; }
 
 /* Window System */
 .mac-window { position: absolute; background: var(--window-bg); border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; color: var(--text-color); border: 1px solid rgba(128,128,128,0.2); min-width: 300px; min-height: 200px; backdrop-filter: blur(20px); }
 .window-header { height: 40px; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid var(--line-color); flex-shrink: 0; }
 .controls { display: flex; gap: 8px; }
-/* 창 조절 버튼 원형 유지 */
-.ctrl-btn { 
-    width: 12px; height: 12px; 
-    min-width: 12px; min-height: 12px; 
-    border-radius: 50%; border: none; flex-shrink: 0; 
-}
+.ctrl-btn { width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; border: none; flex-shrink: 0; }
 .close-btn { background: #ff5f56; } .min-btn { background: #ffbd2e; } .max-btn { background: #27c93f; }
 .window-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-color); }
 .window-body { flex: 1; overflow: hidden; display: flex; position: relative; flex-direction: column; }
 
-/* 달력 위젯 (정사각형 형태) */
+/* [수정] 달력 위젯 */
 .widget-box { 
     position: absolute; top: 60px; right: 30px; 
-    width: 320px; height: 340px; /* 정사각형 비율에 가깝게 조정 */
+    width: 320px; height: 340px; 
     background: var(--window-bg); border-radius: 20px; 
     padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
     backdrop-filter: blur(20px); z-index: 100; 
@@ -79,28 +90,28 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sa
 .sidebar-item { padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
 .sidebar-item:hover { background: var(--list-hover); }
 
-/* Finder Grid View (Icons) */
+/* Finder Grid View */
 .finder-main { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); grid-auto-rows: 110px; gap: 10px; align-content: start; }
 .finder-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 10px; border-radius: 8px; }
 .finder-item:hover { background: var(--list-hover); }
 .finder-icon { font-size: 42px; margin-bottom: 8px; }
 .finder-name { font-size: 12px; text-align: center; word-break: break-all; max-width: 100%; line-height: 1.3; }
 
-/* [추가] Finder List View (검색 결과용) */
+/* Finder List View (Search) */
 .finder-list-view { display: flex; flex-direction: column; width: 100%; }
 .list-header { display: flex; padding: 0 20px 10px 20px; border-bottom: 1px solid var(--line-color); color: #888; font-size: 12px; }
 .col-name { flex: 2; } .col-date { flex: 1; text-align: right; }
 .list-row { display: flex; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--line-color); cursor: pointer; transition: background 0.1s; }
 .list-row:hover { background: #007aff; color: white !important; }
 .list-row:hover .list-sub { color: rgba(255,255,255,0.8); }
+.list-row:hover .list-date { color: rgba(255,255,255,0.8); }
 .list-icon { font-size: 20px; margin-right: 10px; }
 .list-info { flex: 2; display: flex; flex-direction: column; gap: 2px; }
 .list-title { font-size: 14px; font-weight: 500; }
 .list-sub { font-size: 12px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
 .list-date { flex: 1; text-align: right; font-size: 12px; color: #888; }
-.list-row:hover .list-date { color: rgba(255,255,255,0.8); }
 
-/* Search Bar in Window */
+/* Search Bar */
 .search-bar-container { padding: 10px 20px; border-bottom: 1px solid var(--line-color); display: flex; align-items: center; gap: 10px; }
 .search-input { width: 100%; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line-color); background: rgba(128,128,128,0.1); color: var(--text-color); font-size: 13px; }
 
