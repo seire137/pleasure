@@ -1,9 +1,16 @@
 [
   {
-    "title": "블로그 오픈",
-    "date": "2024-02-13",
+    "title": "게시글 예시",
+    "date": "2026-02-14",
+    "category": "기타",
+    "filename": "post1.html",
+    "type": "post"
+  }
+  {
+    "title": "환승연애 형현",
+    "date": "2023-06-01",
     "category": "1차",
-    "filename": "hello.html",
+    "filename": "post2.html",
     "type": "post"
   }
 ]
