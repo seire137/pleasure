@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchData();
     updateClock();
     setInterval(updateClock, 1000);
-    
-    // 검색창 엔터키 이벤트 리스너 (동적 생성 요소라 위임 사용 안함, openSearch에서 처리)
 });
 
 async function fetchData() {
@@ -146,7 +144,7 @@ function openFinder(mode, value) {
     createWindow('finder-win', value ? value : 'Home', `<div class="finder-layout">${sidebar}${mainContent}</div>`, 'finder');
 }
 
-/* === [추가] 검색 기능 (리스트 뷰) === */
+/* === 검색 기능 (리스트 뷰) === */
 function openSearch() {
     let sidebar = `
         <div class="finder-sidebar">
@@ -187,7 +185,6 @@ function performSearch(query) {
     const lowerQ = query.toLowerCase();
     const results = allData.filter(d => {
         if (d.type !== 'post') return false;
-        // 제목, 태그, 본문 내용 검색
         return d.title.toLowerCase().includes(lowerQ) ||
                (d.tags && d.tags.some(t => t.toLowerCase().includes(lowerQ))) ||
                (d.content_text && d.content_text.toLowerCase().includes(lowerQ));
@@ -201,7 +198,6 @@ function performSearch(query) {
     let html = `<div class="finder-list-view">`;
     results.forEach(post => {
         const idx = allData.indexOf(post);
-        // 본문 미리보기 (검색어가 포함된 부분)
         let snippet = post.content_text || "";
         if(snippet.length > 50) snippet = snippet.substring(0, 50) + "...";
 
@@ -258,11 +254,8 @@ function openGuestbook() { createWindow('guestbook-win', 'Messages', '<div class
 function openSettings() { alert("관리자 권한이 필요합니다."); }
 function openSafari() { createWindow('safari-win', 'Safari', '<div style="padding:50px; text-align:center;">Safari Home</div>', 'normal'); }
 function toggleCalendar() { document.getElementById('calendar-widget').classList.toggle('hidden'); }
-
-// 상단바 검색 버튼 연결
 document.getElementById('search-btn').onclick = openSearch;
 
-// 드래그 기능 등 유틸리티
 function dragElement(elmnt) {
     let pos1=0, pos2=0, pos3=0, pos4=0;
     const header = document.getElementById(elmnt.id + "-header");
